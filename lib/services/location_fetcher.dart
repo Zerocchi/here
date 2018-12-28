@@ -6,7 +6,7 @@ import 'package:here/models/location.dart';
 class LocationFetcher {
   static LocationFetcher _fetcher = LocationFetcher._internal();
   Geolocator geolocator = Geolocator();
-  var locationOptions = LocationOptions(accuracy: LocationAccuracy.high);
+  var locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
 
   LocationFetcher._internal();
 

@@ -16,4 +16,5 @@ void setup() {
 
   // initializing stuff before anything
   sl.get<LocationBloc>().getCurrentLocation();
+  sl.get<VenueFetcher>().loadKeys();
 }

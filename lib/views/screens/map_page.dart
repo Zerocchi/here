@@ -36,16 +36,20 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  _mapCurrentLocation(Position position) {
-    _mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          tilt: 30.0,
-          zoom: 17.0,
-        ),
-      )
-    );
+  _mapCurrentLocation(Location location) {
+    if(_mapController != null) {
+      sl.get<LocationBloc>().location.listen((Location location) {
+        _mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(location.position.latitude, location.position.longitude),
+              tilt: 30.0,
+              zoom: 17.0,
+            ),
+          )
+        );
+      });
+    }
   }
 
   @override
@@ -57,7 +61,7 @@ class _MapPageState extends State<MapPage> {
         if(!snapshot.hasData) return CircularProgressIndicator();
         else if(snapshot.hasData) {
           Location location = snapshot.data;
-          if(_mapController != null) {_mapCurrentLocation(location.position);}
+          _mapCurrentLocation(snapshot.data);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -68,10 +72,7 @@ class _MapPageState extends State<MapPage> {
                   child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     options: GoogleMapOptions(
-                      mapType: MapType.satellite,
-                      cameraPosition: CameraPosition(
-                        target: LatLng(location.position.latitude, location.position.longitude),
-                      ),
+                      mapType: MapType.hybrid,
                       myLocationEnabled: true
                     ),
                   ),
@@ -82,5 +83,11 @@ class _MapPageState extends State<MapPage> {
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 }

@@ -25,9 +25,10 @@ class VenueFetcher {
   }
 
   void loadKeys() {
-    KeyLoader(keyPath: "assets/keys/keys.json").load().then((Key key){
+    KeyLoader(keyPath: "assets/keys.json").load().then((Key key) {
       _clientId = key.clientId;
       _clientSecret = key.clientSecret;
+      print("$_clientId");
     });
   }
 
@@ -39,11 +40,9 @@ class VenueFetcher {
 
   String constructUrl(Position position) {
 
-
     var queryParameters = {
       "client_id": "$_clientId",
       "client_secret": "$_clientSecret",
-      //"v": "${_dateParser(DateTime.now())}",
       "v": "${_dateParser(DateTime.now())}",
       "limit": "$_limit",
       "ll": "${position.latitude},${position.longitude}"
@@ -52,19 +51,18 @@ class VenueFetcher {
   }
 
   Future<List<Venue>> getVenues(Position position) async {
-    final AsyncMemoizer<List<Venue>> _memoizer = AsyncMemoizer<List<Venue>>();
-    return _memoizer.runOnce(() async {
-      List<Venue> venues = new List<Venue>();
-      loadKeys();
-
-      String url = constructUrl(position);
-      print(url);
-      var response = await http.get(url);
-      List items = jsonDecode(response.body)["response"]["groups"][0]["items"];
-      items.forEach((item) {
-        venues.add(Venue.fromJson(item["venue"]));
-      });
-      return venues;
+    List<Venue> venues = new List<Venue>();
+    String url = constructUrl(position);
+    print(url);
+    var response = await http.get(url);
+    List items = jsonDecode(response.body)["response"]["groups"][0]["items"];
+    items.forEach((item) {
+      venues.add(Venue.fromJson(item["venue"]));
     });
+    return venues;
+  }
+
+  String venueUrl(Venue venue) {
+    return "http://foursquare.com/v/${venue.id}?ref=$_clientId";
   }
 }

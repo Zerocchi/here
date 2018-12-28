@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:gradient_widgets/gradient_widgets.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 import 'package:here/service_locator.dart';
 import 'package:here/models/venue.dart';
 import 'package:here/services/location_fetcher.dart';
+import 'package:here/services/venue_fetcher.dart';
 import 'package:here/blocs/location_bloc.dart';
 import 'package:here/blocs/venue_bloc.dart';
 
@@ -29,9 +32,14 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
         title: Text("Place of Interests"),
+        backgroundColor: Colors.lightBlue,
         leading: Icon(Icons.location_city),
+        actions: <Widget>[
+          Image.asset("assets/images/4sq.png", height: 86, width: 164,),
+        ],
       ),
       ListView.builder(
+        scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemCount: venues.length,
         itemBuilder: (BuildContext context, int index) {
@@ -47,7 +55,19 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
           placeholder: "assets/images/32.png",
           image: venue.categories.last.icon.full),
       title: Text(venue.name),
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) {
+            return WebviewScaffold(
+              url: sl.get<VenueFetcher>().venueUrl(venue),
+              appBar: AppBar(
+                title: Text(venue.name),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 
@@ -56,7 +76,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
     return StreamBuilder(
       stream: sl.get<VenueBloc>().venues,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if(!snapshot.hasData) return LinearProgressIndicator();
+        if(!snapshot.hasData) return GradientProgressIndicator(gradient: Gradients.coldLinear);
         return _venuesList(snapshot.data);
       }
     );
