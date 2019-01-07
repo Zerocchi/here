@@ -1,19 +1,19 @@
-import 'package:async/async.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:here/models/location.dart';
 
-class LocationFetcher {
-  static LocationFetcher _fetcher = LocationFetcher._internal();
+abstract class LocationService {
+  
+  Stream<Position> getPosition();
+  Future<Position> getLastPosition();
+  Future<List<Placemark>> getPlacemarks(Position position);
+  Location getLocation(Position position, Placemark placemark);
+
+}
+
+class LocationServiceImpl implements LocationService {
   Geolocator geolocator = Geolocator();
   var locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
-
-  LocationFetcher._internal();
-
-  factory LocationFetcher() {
-    if(_fetcher == null) return LocationFetcher();
-    else return _fetcher;
-  }
 
   Stream<Position> getPosition() {
     return geolocator.getPositionStream(locationOptions);
@@ -38,5 +38,10 @@ class LocationFetcher {
     return await geolocator.distanceBetween(
       currentPos.latitude, currentPos.longitude, lastPos.latitude, lastPos.longitude
     );
+  }
+
+  Future<bool> lesserthanMeters(double meters, Position currentPos, Position lastPos) async {
+    double distance = await getDistance(currentPos, lastPos);
+    return distance <= meters ? true : false;
   }
 }

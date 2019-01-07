@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -9,26 +8,25 @@ import 'package:here/models/key.dart';
 import 'package:here/models/venue.dart';
 import 'package:here/services/key_loader.dart';
 
-class VenueFetcher {
-  static VenueFetcher _fetcher = VenueFetcher._internal();
+abstract class VenueService {
+
   static const String BASE_URL = "https://api.foursquare.com/v2/venues/explore";
+
+  void loadKeys();
+  Future<List<Venue>> getVenues(Position position);
+  String venueUrl(Venue venue);
+}
+
+class VenueServiceImpl implements VenueService {
 
   String _clientId = "";
   String _clientSecret = "";
   String _limit = "7";
 
-  VenueFetcher._internal();
-
-  factory VenueFetcher() {
-    if(_fetcher == null) return VenueFetcher();
-    else return _fetcher;
-  }
-
   void loadKeys() {
     KeyLoader(keyPath: "assets/keys.json").load().then((Key key) {
       _clientId = key.clientId;
       _clientSecret = key.clientSecret;
-      print("$_clientId");
     });
   }
 
@@ -53,7 +51,6 @@ class VenueFetcher {
   Future<List<Venue>> getVenues(Position position) async {
     List<Venue> venues = new List<Venue>();
     String url = constructUrl(position);
-    print(url);
     var response = await http.get(url);
     List items = jsonDecode(response.body)["response"]["groups"][0]["items"];
     items.forEach((item) {

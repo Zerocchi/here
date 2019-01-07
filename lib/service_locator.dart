@@ -1,20 +1,22 @@
 import 'package:get_it/get_it.dart';
 
-import 'package:here/services/location_fetcher.dart';
-import 'package:here/services/venue_fetcher.dart';
+import 'package:here/services/location_service.dart';
+import 'package:here/services/venue_service.dart';
+import 'package:here/services/map_service.dart';
 
-import 'package:here/blocs/location_bloc.dart';
-import 'package:here/blocs/venue_bloc.dart';
+import 'package:here/controllers/location_manager.dart';
+import 'package:here/controllers/venue_manager.dart';
 
 GetIt sl = GetIt();
 
 void setup() {
-  sl.registerLazySingleton<LocationFetcher>(() => LocationFetcher());
-  sl.registerLazySingleton<VenueFetcher>(() => VenueFetcher());
-  sl.registerSingleton<LocationBloc>(LocationBloc());
-  sl.registerSingleton<VenueBloc>(VenueBloc());
+  sl.registerLazySingleton<LocationService>(() => LocationServiceImpl());
+  sl.registerLazySingleton<VenueService>(() => VenueServiceImpl());
+  sl.registerLazySingleton<MapService>(() => MapServiceImpl());
+  sl.registerSingleton<LocationManager>(LocationManagerImpl());
+  sl.registerSingleton<VenueManager>(VenueManagerImpl());
 
   // initializing stuff before anything
-  sl.get<LocationBloc>().getCurrentLocation();
-  sl.get<VenueFetcher>().loadKeys();
+  sl.get<LocationManager>().getCurrentLocation();
+  sl.get<VenueService>().loadKeys();
 }

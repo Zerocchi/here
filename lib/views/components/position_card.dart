@@ -16,11 +16,15 @@ class PositionCard extends StatelessWidget {
     TextStyle headerStyle = TextStyle(fontSize: 32, color: Colors.white70);
     TextStyle contentStyle = TextStyle(fontSize: 16, color: Colors.white);
 
+    Widget positionTile(String subject, String value) => ListTile(
+      title: Text(subject),
+      trailing: Text(value),
+    );
+
     return GradientCard(
-      gradient: Gradients.cosmicFusion,
+      gradient: Gradients.backToFuture,
       child: Column(
         children: [
-          Text("Position", style: headerStyle),
           Text("Latitude: ${position.latitude.toStringAsFixed(5)}", style: contentStyle),
           Text("Longitude: ${position.longitude.toStringAsFixed(5)}", style: contentStyle),
           Text("Altitude: ${position.altitude}", style: contentStyle),

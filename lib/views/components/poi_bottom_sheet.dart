@@ -6,10 +6,9 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 import 'package:here/service_locator.dart';
 import 'package:here/models/venue.dart';
-import 'package:here/services/location_fetcher.dart';
-import 'package:here/services/venue_fetcher.dart';
-import 'package:here/blocs/location_bloc.dart';
-import 'package:here/blocs/venue_bloc.dart';
+import 'package:here/services/location_service.dart';
+import 'package:here/services/venue_service.dart';
+import 'package:here/controllers/venue_manager.dart';
 
 class PoiBottomSheet extends StatefulWidget {
   @override
@@ -22,8 +21,8 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
 
   @override
   initState() {
-    sl.get<LocationFetcher>().getLastPosition().then((Position position) {
-      sl.get<VenueBloc>().getVenues(position);
+    sl.get<LocationService>().getLastPosition().then((Position position) {
+      sl.get<VenueManager>().getVenues(position);
     });
     super.initState();
   }
@@ -60,7 +59,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
           context,
           MaterialPageRoute(builder: (context) {
             return WebviewScaffold(
-              url: sl.get<VenueFetcher>().venueUrl(venue),
+              url: sl.get<VenueService>().venueUrl(venue),
               appBar: AppBar(
                 title: Text(venue.name),
               ),
@@ -74,7 +73,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: sl.get<VenueBloc>().venues,
+      stream: sl.get<VenueManager>().venues,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if(!snapshot.hasData) return GradientProgressIndicator(gradient: Gradients.coldLinear);
         return _venuesList(snapshot.data);
